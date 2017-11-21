@@ -1,0 +1,36 @@
+.thumbnail img {
+  height: 30px;
+  width: 30px;
+}
+
+.App {
+  max-height: 600px;
+  overflow-y: scroll;
+}
+
+.list-container,
+.scroll-loader {
+  max-width: 500px;
+}
+
+.scroll-loader {
+  text-align: center;
+  font-size: 16px;
+}
+.scroll-loader span {
+  animation: fadeout 1s linear infinite;
+}
+
+.scroll-loader span:nth-child(2) {
+  animation-delay: 250ms;
+}
+
+.scroll-loader span:nth-child(3) {
+  animation-delay: 500ms;
+}
+
+@keyframes fadeout {
+  50% {
+    color: transparent;
+  }
+}
