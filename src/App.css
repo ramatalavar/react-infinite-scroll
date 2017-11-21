@@ -1,21 +1,24 @@
+body {
+  height: 100%;
+}
 .thumbnail img {
   height: 30px;
   width: 30px;
 }
 
-.App {
+.container-scroll {
   max-height: 600px;
   overflow-y: scroll;
 }
 
 .list-container,
 .scroll-loader {
-  max-width: 500px;
+  display: inline;
 }
 
 .scroll-loader {
   text-align: center;
-  font-size: 16px;
+  font-size: 20px;
 }
 .scroll-loader span {
   animation: fadeout 1s linear infinite;

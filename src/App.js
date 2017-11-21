@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import './App.css';
 import axios from 'axios';
-import { Grid, ListGroup, ListGroupItem, Media, Image } from 'react-bootstrap';
+import { Grid, ListGroup, ListGroupItem, Media, Image, Button } from 'react-bootstrap';
 
 const URL = "https://api.github.com/search/repositories?q=language:";
 
@@ -52,19 +52,25 @@ class App extends Component {
       isFetching: false,
       hasMore: pageCount < totalPages
     });
-
     // retain the current scroll position
     if (this.state.isScrollToWindow) {
-      window.scrollTop = scrollTop || window.scrollTop
+      window.document.body.scrollTop = scrollTop || window.document.body.scrollTop;
     } else {
       this.scrollableTo.scrollTop = scrollTop || this.scrollableTo.scrollTop;
     }
   }
 
+  changeScrollContainer(val) {
+    this.setState({
+      isScrollToWindow: val
+    });
+  }
+
   render() {
+    const className = "App " + (this.state.isScrollToWindow ? '' : "container-scroll");
     return (
       <Grid>
-        <div  ref={(el) => this.scrollableTo = el} className="App">
+        <div  ref={(el) => this.scrollableTo = el} className={className}>
           <header className="App-header">
             <h3 className="App-title">Welcome to React Infinite Scroll - Demo</h3>
           </header>
@@ -112,11 +118,15 @@ class InfiniteScroller extends Component {
     };
   }
   componentDidMount() {
+    this.initializeScrollContainer();
+  }
+
+  initializeScrollContainer() {
     let scrollableTo;
     if (!this.state.isScrollToWindow) {
       scrollableTo = ReactDOM.findDOMNode(this).parentNode;
     } else {
-      scrollableTo = window;
+      scrollableTo = window.document.body;
     }
     this.setState({
       scrollableTo: scrollableTo
@@ -128,9 +138,24 @@ class InfiniteScroller extends Component {
     this.state.scrollableTo.removeEventListener('scroll', this.handleScroll.bind(this));
   }
 
+  componentDidUpdate(prevProps, preState) {
+    if (prevProps.scrollToWindow !== this.props.scrollToWindow) {
+      this.initializeScrollContainer();
+    }
+  }
+
+  componentWillReceiveProps(props) {
+    if (props.scrollToWindow !== this.state.isScrollToWindow) {
+      this.setState({
+        isScrollToWindow: props.scrollToWindow
+      });
+    }
+  }
+
   handleScroll(){
-    if (!this.props.isFetching && this.props.hasMore && this.isNearBottom()) {
-      this.props.fetchMore(this.state.scrollableTo.scrollTop); // pass the current scroll position of the container
+    let { isFetching, hasMore } = this.props;
+    if (!isFetching && hasMore && this.isNearBottom()) {
+      this.props.fetchMore(this.state.lastScrollPos); // pass the current scroll position of the container
     }
   }
 
@@ -140,9 +165,9 @@ class InfiniteScroller extends Component {
     let viewPortTop, bottomTop;
 
     if(isScrollToWindow) {
-      let element = window.documentElement || window.document.scrollingElement;
-      viewPortTop = element.scrollTop || element.pageYOffset;
-      bottomTop = element.scrollHeight - window.innerHeight;
+      // let element = window.document.body || window.document.scrollingElement;
+      viewPortTop = window.document.body.scrollTop;
+      bottomTop = window.document.body.scrollHeight - window.document.body.clientHeight;
     } else {
       viewPortTop = scrollableTo.scrollTop;
       bottomTop = scrollableTo.scrollHeight - scrollableTo.clientHeight;
